@@ -20,12 +20,14 @@ public:
     
     ofPixels& getColorPixels();
     ofPixels& getIrPixels();
-    ofPixels& getDepthPixels();
+    ofShortPixels& getDepthPixels();
     
     float getDepthScale();
 private:
     int width;
     int height;
+    
+    float depthScale;
     
     bool enableColor;
     bool enableIr;
@@ -35,7 +37,6 @@ private:
     bool newFramesArrived;
     
     rs2::config cfg;
-    rs2::depth_sensor sensor;
     
     rs2::pipeline pipe;
     rs2::frameset frames;
@@ -45,5 +46,5 @@ private:
     
     ofPixels lastColorPixels;
     ofPixels lastIrPixels;
-    ofPixels lastDepthPixels;
+    ofShortPixels lastDepthPixels;
 };

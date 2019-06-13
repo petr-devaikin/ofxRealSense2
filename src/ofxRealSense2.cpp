@@ -6,7 +6,6 @@
 
 #include "ofxRealSense2.hpp"
 
-
 bool ofxRealSense2::setup(int width, int height, bool enableColor, bool enableIr, bool enableDepth) {
     this->width = width;
     this->height = height;
@@ -23,7 +22,7 @@ bool ofxRealSense2::setup(int width, int height, bool enableColor, bool enableIr
         cfg.enable_stream(RS2_STREAM_INFRARED, width, height);
     }
     if (enableDepth) {
-        lastDepthPixels.allocate(width, height, 2);
+        lastDepthPixels.allocate(width, height, 1);
         cfg.enable_stream(RS2_STREAM_DEPTH, width, height);
     }
     
@@ -36,8 +35,10 @@ bool ofxRealSense2::setup(int width, int height, bool enableColor, bool enableIr
 
 void ofxRealSense2::start() {
     rs2::pipeline_profile profile = pipe.start(cfg);
-    sensor = profile.get_device().first<rs2::depth_sensor>();
-        
+    auto sensor = profile.get_device().first<rs2::depth_sensor>();
+    
+    depthScale = sensor.get_depth_scale();
+    
     // depth sensor settings
     sensor.set_option(RS2_OPTION_VISUAL_PRESET, RS2_RS400_VISUAL_PRESET_DEFAULT);
     //sensor(RS2_OPTION_ENABLE_AUTO_EXPOSURE, 0.f);
@@ -84,11 +85,11 @@ ofPixels& ofxRealSense2::getIrPixels() {
     return lastIrPixels;
 }
 
-ofPixels& ofxRealSense2::getDepthPixels() {
+ofShortPixels& ofxRealSense2::getDepthPixels() {
     newFramesArrived = false;
     return lastDepthPixels;
 }
 
 float ofxRealSense2::getDepthScale() {
-    return sensor.get_depth_scale();
+    return depthScale;
 }
