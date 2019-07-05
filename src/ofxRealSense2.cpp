@@ -6,12 +6,15 @@
 
 #include "ofxRealSense2.hpp"
 
-bool ofxRealSense2::setup(int width, int height, bool enableColor, bool enableIr, bool enableDepth) {
+bool ofxRealSense2::setup(int width, int height, bool enableColor, bool enableIr, bool enableDepth, bool alignToColor) {
     this->width = width;
     this->height = height;
     this->enableColor = enableColor;
     this->enableIr = enableIr;
     this->enableDepth = enableDepth;
+    this->alignToColor = alignToColor;
+    
+    // Allocate buffers
     
     if (enableColor) {
         lastColorPixels.allocate(width, height, 3);
@@ -30,7 +33,9 @@ bool ofxRealSense2::setup(int width, int height, bool enableColor, bool enableIr
     rs2::context ctx;
     auto device_list = ctx.query_devices();
     
-    return device_list.size();
+    found = device_list.size();
+    
+    return found;
 }
 
 void ofxRealSense2::start() {
@@ -51,12 +56,19 @@ void ofxRealSense2::stop() {
     pipe.stop();
 }
 
+bool ofxRealSense2::isConnected() {
+    return found;
+}
+
 void ofxRealSense2::update() {
     if (pipe.poll_for_frames(&newFrames)) {
         newFramesArrived = true;
         
         newFrames = temp_filter.process(newFrames);
         newFrames = hole_filter.process(newFrames);
+        if (enableColor && alignToColor) {
+            newFrames = alignerToColor.process(newFrames);
+        }
         
         // Copy data from camera
         if (enableDepth) {
@@ -66,7 +78,7 @@ void ofxRealSense2::update() {
             memcpy(lastIrPixels.getData(), newFrames.get_infrared_frame().get_data(), width * height);
         }
         if (enableColor) {
-            memcpy(lastIrPixels.getData(), newFrames.get_color_frame().get_data(), width * height);
+            memcpy(lastColorPixels.getData(), newFrames.get_color_frame().get_data(), width * height * 3);
         }
     }
 }
