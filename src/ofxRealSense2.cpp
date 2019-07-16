@@ -105,3 +105,11 @@ ofShortPixels& ofxRealSense2::getDepthPixels() {
 float ofxRealSense2::getDepthScale() {
     return depthScale;
 }
+
+float ofxRealSense2::getWidth() {
+    return width;
+}
+
+float ofxRealSense2::getHeight() {
+    return height;
+}

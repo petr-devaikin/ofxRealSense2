@@ -5,7 +5,7 @@
 //
 
 #pragma once
-#include <librealsense2/includes/rs.hpp>
+#include <librealsense2/includes/librealsense2/rs.hpp>
 #include "ofMain.h"
 
 class ofxRealSense2 {
@@ -58,4 +58,6 @@ public:
     ofShortPixels& getDepthPixels();
     
     float getDepthScale();
+    float getWidth();
+    float getHeight();
 };
